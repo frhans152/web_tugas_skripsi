@@ -1,0 +1,2 @@
+Train
+accuracy : 1.0 | Error : 0.0
