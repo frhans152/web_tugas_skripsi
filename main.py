@@ -54,7 +54,7 @@ if option == "Di Balik Layar":
             akur.close()
         if mode == "Test" :
             knn = KNN(df_test)
-            hasilh = knn.Train(k = k , auto_k=False , name = "Train")
+            hasilh = knn.Train(k = k , auto_k=False , name = "Test")
             inputs = {lable[0] : df_test['1. Menjadi marah karena hal-hal kecil/sepele '],
                       lable[1] : df_test['6. Cenderung bereaksi berlebihan pada situasi '],
                       lable[2] : df_test['8. Kesulitan untuk relaksasi/bersantai '],
