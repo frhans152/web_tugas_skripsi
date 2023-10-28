@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error , accuracy_score
+from sklearn.metrics import mean_absolute_error , accuracy_score , classification_report
 from sklearn.preprocessing import LabelEncoder
 
 df_train = pd.read_csv('Train.csv')
@@ -46,15 +46,17 @@ class KNN:
                   t = open('histori_Train.txt' , 'w')
                   eror = mean_absolute_error(self.actual_le , prediksi_le)
                   acs = accuracy_score(self.actual_le , prediksi_le)
+                  self.report = classification_report(self.actual_le , prediksi_le)
                   t.write(f"{name}\n")
-                  t.write(f"accuracy : {acs} | Error : {eror}")
+                  t.write(f"accuracy : {np.round(acs,decimals=2) * 100}% | Error : {np.round(eror,decimals=2)}")
                   t.close()
             if name == "Test" : 
                   t = open('histori_Test.txt' , 'w')
                   eror = mean_absolute_error(self.actual_le , prediksi_le)
                   acs = accuracy_score(self.actual_le , prediksi_le)
+                  self.report = classification_report(self.actual_le , prediksi_le)
                   t.write(f"{name}\n")
-                  t.write(f"accuracy : {acs} | Error : {eror}")
+                  t.write(f"accuracy : {np.round(acs,decimals=2) * 100}% | Error : {np.round(eror,decimals=2)}")
                   t.close()
       def Auto_K (self , range : int):
             self.piluh_k = [] ; self.ks = []
