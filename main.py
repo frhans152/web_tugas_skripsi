@@ -130,7 +130,7 @@ if option == "Tes Tingkat Stres" :
         s = [sum(datah)]
         datah = datah + s
         clasifikasi = KNN(df)
-        hasils = clasifikasi.Class_Enggine(datah , k = 10 , auto_k=False)
+        hasils = clasifikasi.Class_Enggine(datah , k = 10 , auto_k=True)
         p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
         pada prodi {inpt2} Tingkat stres anda {hasils} , 
         Jika anda sudah merasa lelah dengan keadaan Maka dekatkan lah hati kepada Tuhan'''
