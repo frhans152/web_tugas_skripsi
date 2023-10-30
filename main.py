@@ -1,5 +1,5 @@
 import streamlit as st
-from ML import KNN , lable , df_train ,df_test , lable_class
+from ML import KNN , lable, lable_class , df , train_test
 from streamlit_option_menu import option_menu 
 import pandas as pd
 
@@ -15,14 +15,23 @@ def find(data , f):
     for i in range(len(data)):
         if data[i] == f : return i
         
+
 if option == "Di Balik Layar": 
     st.title("DI Balik Layar")
-    st.header("Data Test")
-    st.dataframe(data=df_test)
-    st.header("Data Train")
-    st.dataframe(data=df_train)
+    st.header("Full Data Set")
+    st.header("Data TerNormalisasi")
+    st.dataframe(data=df )
+    ratio = st.number_input("masukan rasio pembagi dataset contoh : 0.30")
+    bagi = train_test(df , ratio=ratio)
+    df_train = pd.read_csv('train.csv')
+    df_test =  pd.read_csv('test.csv')
+    if st.button("generate data"):
+        st.header("Data Test")
+        st.dataframe(data=df_test)
+        st.header("Data Train")
+        st.dataframe(data=df_train)
     k = int(st.number_input("Masukan nilai K"))
-    mode = st.text_input("Train / test")
+    mode = st.selectbox(label='Pilih mode' , options=["Train" , "Test"])
     if st.button("Coba"):
         if mode == "Train" :
             knn = KNN(df_train)
@@ -120,7 +129,7 @@ if option == "Tes Tingkat Stres" :
             datah.append(vals[find(plh , tamps[0][i])])
         s = [sum(datah)]
         datah = datah + s
-        clasifikasi = KNN(df_train)
+        clasifikasi = KNN(df)
         hasils = clasifikasi.Class_Enggine(datah , k = 10 , auto_k=False)
         p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
         pada prodi {inpt2} Tingkat stres anda {hasils} , 
