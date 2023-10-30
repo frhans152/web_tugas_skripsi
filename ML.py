@@ -3,8 +3,7 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_error , accuracy_score , classification_report
 from sklearn.preprocessing import LabelEncoder
 
-df_train = pd.read_csv('Train.csv')
-df_test = pd.read_csv('Test.csv')
+df = pd.read_csv('stress.csv')
 lable = ['1. Menjadi marah karena hal-hal kecil/sepele ' , 
       '6. Cenderung bereaksi berlebihan pada situasi ' ,
       '8. Kesulitan untuk relaksasi/bersantai ' , 
@@ -21,6 +20,37 @@ lable = ['1. Menjadi marah karena hal-hal kecil/sepele ' ,
       '39. Anda Sering Gemetar (bukan karena penyakit fisik)' ,
       'Skor stress']
 lable_class = 'Keterangan'
+def train_test(data , ratio):
+      data = data.sample(frac = 1)
+      total_row = data.shape[0]
+      train_size = int(total_row * ratio)
+      train = data[0:train_size]
+      test = data[train_size:]
+      train.to_csv('train.csv')
+      test.to_csv('test.csv')
+
+
+def normalitation(data): 
+      data1 = data['Skor stress']
+      n = len(data1)
+      tam = []
+      for i in range(len(data1)):
+            maxs = max(data1)
+            mins = min(data1)
+            rata = np.sum(data1) / n
+            tam.append((data1[i] - rata) / maxs - mins)
+      data['Skor stress'] = tam
+      df1 = pd.DataFrame(data)
+      return df1
+      
+df = normalitation(df)
+
+bagi = train_test(df , ratio=0.30)
+
+df_train = pd.read_csv('train.csv')
+df_test =  pd.read_csv('test.csv')
+
+print(len(df_train.head()) , '\n' , len(df_test.head()))
 
 class KNN:
       ''' # HANDMADE KNN ENGGINE
@@ -127,13 +157,13 @@ class KNN:
                         else : continue 
             return self.table[lable_class][self.search(distance , model='knn')]
       
-knn = KNN(df_test)
-tezt = knn.Train(k=41 , auto_k=False , name = "Test")
-data = {"Real Data" : df_test[lable_class] , "KNN" : tezt}
-df_tez = pd.DataFrame(data)
-
 knn2 = KNN(df_train)
-tezt2 = knn.Train(k=38 , auto_k=False , name = "Train")
-data2 = {"Real Data" : df_test[lable_class] , "KNN" : tezt2}
+tezt2 = knn2.Train(k=22 , auto_k=False , name = "Train")
+data2 = {"Real Data" : df_train[lable_class] , "KNN" : tezt2}
 df_tez2 = pd.DataFrame(data2)
 print(df_tez2)
+knn = KNN(df_test)
+tezt = knn.Train(k=32 , auto_k=False , name = "Test")
+data = {"Real Data" : df_test[lable_class] , "KNN" : tezt}
+df_tez = pd.DataFrame(data)
+print(df_tez)
