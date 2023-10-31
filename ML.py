@@ -90,7 +90,7 @@ class KNN:
                   t.close()
       def Auto_K (self , range : int):
             self.piluh_k = [] ; self.ks = []
-            for l in range(1, range-1):
+            for l in range(1, range):
                   self.ks.append(l)
                   pred = [] 
                   for i in range(len(self.table)):
