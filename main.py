@@ -1,12 +1,12 @@
 import streamlit as st
-from ML import KNN , lable, lable_class , df , train_test
+from ML import KNN , lable, lable_class , df , train_test , df_test
 from streamlit_option_menu import option_menu 
 import pandas as pd
 
 with st.sidebar :
     option = option_menu(
         menu_title="MAIN MENU" ,
-        options=['Tes Tingkat Stres' , 'Di Balik Layar'] , 
+        options=['Tes Tingkat Stres' , 'Detail Perhitungan'] , 
         icons = ['home' , 'book'] , 
         menu_icon='cast' , 
         default_index=0 , )
@@ -16,7 +16,7 @@ def find(data , f):
         if data[i] == f : return i
         
 
-if option == "Di Balik Layar": 
+if option == "Detail Perhitungan": 
     st.title("DI Balik Layar")
     st.header("Full Data Set")
     st.header("Data TerNormalisasi")
@@ -27,8 +27,10 @@ if option == "Di Balik Layar":
     df_test =  pd.read_csv('test.csv')
     if st.button("generate data"):
         st.header("Data Test")
+        df_test = df_test.iloc[:,-2:]
         st.dataframe(data=df_test)
         st.header("Data Train")
+        df_train = df_train.iloc[:,-2:]
         st.dataframe(data=df_train)
     k = int(st.number_input("Masukan nilai K"))
     mode = st.selectbox(label='Pilih mode' , options=["Train" , "Test"])
@@ -36,21 +38,7 @@ if option == "Di Balik Layar":
         if mode == "Train" :
             knn = KNN(df_train)
             hasilh = knn.Train(k = k , auto_k=False , name = "Train")
-            inputs = {lable[0] : df_train['1. Menjadi marah karena hal-hal kecil/sepele '],
-                      lable[1] : df_train['6. Cenderung bereaksi berlebihan pada situasi '],
-                      lable[2] : df_train['8. Kesulitan untuk relaksasi/bersantai '],
-                      lable[3] : df_train['11. Mudah merasa kesal '],
-                      lable[4] : df_train['12. Merasa banyak menghabiskan energi karena cemas '],
-                      lable[5] : df_train['14. Tidak sabaran '],
-                      lable[6] : df_train['18. Ketakutan tanpa alasan yang jelas '],
-                      lable[7] : df_train['22. Tidak dapat menikmati hal-hal yang saya lakukan '],
-                      lable[8] : df_train['27. Kesulitan untuk tenang setelah sesuatu yang mengganggu '],
-                      lable[9] : df_train['29. Sulit untuk antusias pada banyak hal '],
-                      lable[10]: df_train['32. Merasa tidak berharga '],
-                      lable[11]: df_train['33. Tidak dapat memaklumi hal apapun yang menghalangi anda untuk menyelesaikan hal yang sedang Anda lakukan '],
-                      lable[12]: df_train['35. Tidak ada harapan untuk masa depan '],
-                      lable[13]: df_train['39. Anda Sering Gemetar (bukan karena penyakit fisik)'],
-                      lable[14]: df_train['Skor stress'],
+            inputs = {lable[14]: df_train['Skor stress'],
                       lable_class: df_train[lable_class],
                       "KNN" : hasilh}
             df = pd.DataFrame(inputs)
@@ -64,21 +52,7 @@ if option == "Di Balik Layar":
         if mode == "Test" :
             knn = KNN(df_test)
             hasilh = knn.Train(k = k , auto_k=False , name = "Test")
-            inputs = {lable[0] : df_test['1. Menjadi marah karena hal-hal kecil/sepele '],
-                      lable[1] : df_test['6. Cenderung bereaksi berlebihan pada situasi '],
-                      lable[2] : df_test['8. Kesulitan untuk relaksasi/bersantai '],
-                      lable[3] : df_test['11. Mudah merasa kesal '],
-                      lable[4] : df_test['12. Merasa banyak menghabiskan energi karena cemas '],
-                      lable[5] : df_test['14. Tidak sabaran '],
-                      lable[6] : df_test['18. Ketakutan tanpa alasan yang jelas '],
-                      lable[7] : df_test['22. Tidak dapat menikmati hal-hal yang saya lakukan '],
-                      lable[8] : df_test['27. Kesulitan untuk tenang setelah sesuatu yang mengganggu '],
-                      lable[9] : df_test['29. Sulit untuk antusias pada banyak hal '],
-                      lable[10]: df_test['32. Merasa tidak berharga '],
-                      lable[11]: df_test['33. Tidak dapat memaklumi hal apapun yang menghalangi anda untuk menyelesaikan hal yang sedang Anda lakukan '],
-                      lable[12]: df_test['35. Tidak ada harapan untuk masa depan '],
-                      lable[13]: df_test['39. Anda Sering Gemetar (bukan karena penyakit fisik)'],
-                      lable[14]: df_test['Skor stress'],
+            inputs = {lable[14]: df_test['Skor stress'],
                       lable_class: df_test[lable_class],
                       "KNN" : hasilh}
             df = pd.DataFrame(inputs)
@@ -129,8 +103,10 @@ if option == "Tes Tingkat Stres" :
             datah.append(vals[find(plh , tamps[0][i])])
         s = [sum(datah)]
         datah = datah + s
+        print(datah)
+        df = pd.read_csv('stress.csv')
         clasifikasi = KNN(df)
-        hasils = clasifikasi.Class_Enggine(datah , k = 10 , auto_k=True)
+        hasils = clasifikasi.Class_Enggine(datah , k = 50 , auto_k=False)
         p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
         pada prodi {inpt2} Tingkat stres anda {hasils} , 
         Jika anda sudah merasa lelah dengan keadaan Maka dekatkan lah hati kepada Tuhan'''
