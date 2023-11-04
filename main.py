@@ -2,6 +2,25 @@ import streamlit as st
 from ML import KNN , lable, lable_class , df , train_test , df_test
 from streamlit_option_menu import option_menu 
 import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split , KFold
+from sklearn.metrics import mean_absolute_error , accuracy_score ,confusion_matrix , ConfusionMatrixDisplay 
+from sklearn.preprocessing import LabelEncoder , MinMaxScaler
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+df = pd.read_csv('stress.csv')
+df = {'Skor stress' : df['Skor stress'],'Keterangan':df['Keterangan']}
+df = pd.DataFrame(df)
+norm  = MinMaxScaler()
+df['Skor stress'] = norm.fit_transform(df['Skor stress'].values.reshape(-1 ,1))
+print(df.head())
+X = df['Skor stress'].values.reshape(-1,1)
+laben = LabelEncoder()
+df['Keterangan'] = laben.fit_transform(df['Keterangan'].values.reshape(-1,1))
+print(df.head())
+y = df['Keterangan'].values.reshape(-1,1)
 
 with st.sidebar :
     option = option_menu(
@@ -17,53 +36,60 @@ def find(data , f):
         
 
 if option == "Detail Perhitungan": 
-    st.title("DI Balik Layar")
-    st.header("Full Data Set")
-    st.header("Data TerNormalisasi")
-    st.dataframe(data=df )
-    ratio = st.number_input("masukan rasio pembagi dataset contoh : 0.30")
-    bagi = train_test(df , ratio=ratio)
-    df_train = pd.read_csv('train.csv')
-    df_test =  pd.read_csv('test.csv')
-    if st.button("generate data"):
-        st.header("Data Test")
-        df_test = df_test.iloc[:,-2:]
-        st.dataframe(data=df_test)
-        st.header("Data Train")
-        df_train = df_train.iloc[:,-2:]
-        st.dataframe(data=df_train)
-    k = int(st.number_input("Masukan nilai K"))
-    mode = st.selectbox(label='Pilih mode' , options=["Train" , "Test"])
-    if st.button("Coba"):
-        if mode == "Train" :
-            knn = KNN(df_train)
-            hasilh = knn.Train(k = k , auto_k=False , name = "Train")
-            inputs = {lable[14]: df_train['Skor stress'],
-                      lable_class: df_train[lable_class],
-                      "KNN" : hasilh}
-            df = pd.DataFrame(inputs)
-            st.dataframe(df)
-            akur = open('histori_Train.txt' , 'r')
-            akur1 = akur.readlines()
-            for data in akur1 : 
-                st.write(data)
-            st.write(knn.report)
-            akur.close()
-        if mode == "Test" :
-            knn = KNN(df_test)
-            hasilh = knn.Train(k = k , auto_k=False , name = "Test")
-            inputs = {lable[14]: df_test['Skor stress'],
-                      lable_class: df_test[lable_class],
-                      "KNN" : hasilh}
-            df = pd.DataFrame(inputs)
-            st.dataframe(df)
-            akur = open('histori_Test.txt' , 'r')
-            akur1 = akur.readlines()
-            for data in akur1 : 
-                st.write(data)
-            st.write(knn.report)
-            akur.close()
-            
+    df_dp = pd.read_csv('stress.csv')
+    st.title('Detail Perhitungan')
+    st.header("Dataset")
+    st.dataframe(df_dp)
+    st.header("Bagi Dataset ke train test")
+    Train_size = st.number_input("Train")
+    Test_size = st.number_input("Test")
+    st.header("masukan K")
+    K = int(st.number_input("K"))
+    if st.button("Latih Dan Tes"):
+        x_train  , x_test , y_train , y_test = train_test_split(X , y , test_size=Test_size , train_size=Train_size , random_state=1)
+        cols1 , cols2 = st.columns(2,gap = 'small')
+        with cols1:
+            st.header("Train and Test X")
+            st.write("Train")
+            st.dataframe(x_train)
+            st.write("Test")
+            st.dataframe(x_test)
+        with cols2:
+            st.header("Train and Test Y")
+            st.write("Train")
+            st.dataframe(y_train)
+            st.write("Test")
+            st.dataframe(y_test)
+        model = KNeighborsClassifier(n_neighbors=K , weights='distance' , metric='euclidean')
+        model.fit(x_train , y_train)
+        y_pred = model.predict(x_test)
+        lable_asli = laben.inverse_transform(y_pred)
+        akt = laben.inverse_transform(y_test)
+        st.header("Hasil Prediksi")
+        d = {"Prediksi" : list(lable_asli) , "Data Aktual" : list(akt)}
+        dfh = pd.DataFrame(d)
+        st.dataframe(dfh)
+        mae = mean_absolute_error(y_test , y_pred)
+        acc = accuracy_score(y_test , y_pred)
+        st.write(f"MAE {mae} | Accuracy {acc}")
+        kf = KFold(n_splits=5)
+        scores = []
+        for train_index, test_index in kf.split(X):
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            model.fit(X_train, y_train)
+            score = model.score(X_test, y_test)
+            scores.append(score)
+        rata_rata = np.sum(scores) / len(scores)
+        st.write("Rata Rata Cross-Validation Score (K-fold):", rata_rata)
+        st.header("Confusion Matrix")
+        cm = confusion_matrix(y_test , y_pred[:20])
+        cmd = ConfusionMatrixDisplay(confusion_matrix=cm , display_labels=['Normal' , 'Ringan' , 'Sedang' , 'Parah' , 'Sangat parah'])
+        cmd.plot()
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        st.pyplot()
+        plt.show()
+        
 if option == "Tes Tingkat Stres" : 
     st.title("CEK TINGKAT STRESS KAMU")
     st.header("Login dulu")
