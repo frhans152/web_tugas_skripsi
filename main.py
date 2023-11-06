@@ -10,19 +10,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-df = pd.read_csv('stress.csv')
-df = {'Skor stress' : df['Skor stress'],'Keterangan':df['Keterangan']}
-df = pd.DataFrame(df)
+df = pd.read_csv('stress.csv') # baca dataset
+df = {'Skor stress' : df['Skor stress'],'Keterangan':df['Keterangan']} # ambil data penting
+df = pd.DataFrame(df) # di jadikan dataframe baru
 norm  = MinMaxScaler()
-df['Skor stress'] = norm.fit_transform(df['Skor stress'].values.reshape(-1 ,1))
+df['Skor stress'] = norm.fit_transform(df['Skor stress'].values.reshape(-1 ,1)) # Normalisasi Skor stress
 print(df.head())
-X = df['Skor stress'].values.reshape(-1,1)
+X = df['Skor stress'].values.reshape(-1,1) # data X
 laben = LabelEncoder()
-df['Keterangan'] = laben.fit_transform(df['Keterangan'].values.reshape(-1,1))
+df['Keterangan'] = laben.fit_transform(df['Keterangan'].values.reshape(-1,1)) # merubah lable
 print(df.head())
-y = df['Keterangan'].values.reshape(-1,1)
+y = df['Keterangan'].values.reshape(-1,1) # data y
 
 with st.sidebar :
+    '''Untuk membuat sebuah opsi'''
     option = option_menu(
         menu_title="MAIN MENU" ,
         options=['Tes Tingkat Stres' , 'Detail Perhitungan'] , 
@@ -34,6 +35,13 @@ def find(data , f):
     for i in range(len(data)):
         if data[i] == f : return i
         
+def kumpul(data , lable) : 
+    lables = {}
+    for i in range(len(lable)):
+        for j in range(len(data)):
+            if data[lable[i]][j] == lable[i]:
+                lables[lable[i]] = data[j][j]
+    return lables
 
 if option == "Detail Perhitungan": 
     df_dp = pd.read_csv('stress.csv')
@@ -41,37 +49,46 @@ if option == "Detail Perhitungan":
     st.header("Dataset")
     st.dataframe(df_dp)
     st.header("Bagi Dataset ke train test")
+    # untuk input angka
     Train_size = st.number_input("Train")
     Test_size = st.number_input("Test")
     st.header("masukan K")
     K = int(st.number_input("K"))
     if st.button("Latih Dan Tes"):
-        x_train  , x_test , y_train , y_test = train_test_split(X , y , test_size=Test_size , train_size=Train_size , random_state=1)
-        cols1 , cols2 = st.columns(2,gap = 'small')
+        x_train  , x_test , y_train , y_test = train_test_split(X , y , test_size=Test_size , train_size=Train_size , random_state=1) # kita pisah data X dan y nya menjadi data test dan training
+        cols1 , cols2 = st.columns(2,gap = 'small') # untuk memisahkan tampilan table
         with cols1:
-            st.header("Train and Test X")
-            st.write("Train")
-            st.dataframe(x_train)
-            st.write("Test")
-            st.dataframe(x_test)
+            # data Training Untuk X dan Y 
+            st.header("Train X and Y")
+            data_f = {'Train X (norm)' : list(x_train) , 'Train y' : list(y_train)}
+            data_f = pd.DataFrame(data_f)
+            st.dataframe(data_f)
+            st.write(f"Length table : {len(data_f)}")
         with cols2:
-            st.header("Train and Test Y")
-            st.write("Train")
-            st.dataframe(y_train)
-            st.write("Test")
-            st.dataframe(y_test)
-        model = KNeighborsClassifier(n_neighbors=K , weights='distance' , metric='euclidean')
-        model.fit(x_train , y_train)
-        y_pred = model.predict(x_test)
+            # data Test Untuk X dan Y 
+            st.header("Test X and Y")
+            data_f = {'Test X (norm)' : list(x_test) , 'Test y' : list(y_test)}
+            data_f = pd.DataFrame(data_f)
+            st.dataframe(data_f)
+            st.write(f"Length table : {len(data_f)}")
+        model = KNeighborsClassifier(n_neighbors=K , weights='distance' , metric='euclidean') # Model KNN untuk klasifikasi
+        model.fit(x_train , y_train) # fit , untuk melakukan penyesuaian data 
+        y_pred = model.predict(x_test) # Training
+        # kita rubah dari lable encoding ke lable asli
         lable_asli = laben.inverse_transform(y_pred)
         akt = laben.inverse_transform(y_test)
         st.header("Hasil Prediksi")
         d = {"Prediksi" : list(lable_asli) , "Data Aktual" : list(akt)}
         dfh = pd.DataFrame(d)
         st.dataframe(dfh)
+        groub = dfh.groupby('Prediksi')
+        lable_count = groub['Prediksi'].count()
+        st.write(lable_count)
+        # menghitung error dan akurasi
         mae = mean_absolute_error(y_test , y_pred)
         acc = accuracy_score(y_test , y_pred)
         st.write(f"MAE {mae} | Accuracy {acc}")
+        # Kfold
         kf = KFold(n_splits=5)
         scores = []
         for train_index, test_index in kf.split(X):
@@ -83,8 +100,9 @@ if option == "Detail Perhitungan":
         rata_rata = np.sum(scores) / len(scores)
         st.write("Rata Rata Cross-Validation Score (K-fold):", rata_rata)
         st.header("Confusion Matrix")
-        cm = confusion_matrix(y_test , y_pred[:20])
-        cmd = ConfusionMatrixDisplay(confusion_matrix=cm , display_labels=['Normal' , 'Ringan' , 'Sedang' , 'Parah' , 'Sangat parah'])
+        # membuat confusion matrix
+        cm = confusion_matrix(akt , lable_asli)
+        cmd = ConfusionMatrixDisplay(confusion_matrix=cm , display_labels=['Normal' , 'Parah' , 'Ringan' , 'Sangat Parah' , 'Sedang'])
         cmd.plot()
         st.set_option('deprecation.showPyplotGlobalUse', False)
         st.pyplot()
