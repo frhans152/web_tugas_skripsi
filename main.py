@@ -10,13 +10,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-df = pd.read_csv('stress.csv') # baca dataset
-df = {'Skor stress' : df['Skor stress'],'Keterangan':df['Keterangan']} # ambil data penting
-df = pd.DataFrame(df) # di jadikan dataframe baru
-norm  = MinMaxScaler()
-df['Skor stress'] = norm.fit_transform(df['Skor stress'].values.reshape(-1 ,1)) # Normalisasi Skor stress
+df = pd.read_csv('stress.csv')
+dfx = df.drop('Unnamed: 0' ,axis=1)
+dfx = df.drop('Skor stress' , axis = 1)
+dfx = df.drop('Keterangan' , axis = 1)
+norm = MinMaxScaler(feature_range=[0,len(df)-1])
+df_X = norm.fit_transform(dfx)
 print(df.head())
-X = df['Skor stress'].values.reshape(-1,1) # data X
+X = df_X # data X
 laben = LabelEncoder()
 df['Keterangan'] = laben.fit_transform(df['Keterangan'].values.reshape(-1,1)) # merubah lable
 print(df.head())
@@ -100,7 +101,6 @@ if option == "Detail Perhitungan":
         rata_rata = np.sum(scores) / len(scores)
         st.write("Rata Rata Cross-Validation Score (K-fold):", rata_rata)
         st.header("Confusion Matrix")
-        # membuat confusion matrix
         cm = confusion_matrix(akt , lable_asli)
         cmd = ConfusionMatrixDisplay(confusion_matrix=cm , display_labels=['Normal' , 'Parah' , 'Ringan' , 'Sangat Parah' , 'Sedang'])
         cmd.plot()
