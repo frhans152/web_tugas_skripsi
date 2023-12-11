@@ -110,7 +110,7 @@ if option == "Detail Perhitungan":
         rata_rata = np.sum(scores) / len(scores)
         st.write("Rata Rata Cross-Validation Score (K-fold):", rata_rata)
         st.header('klarifikasi report') 
-        report = classification_report(y_test, y_pred)
+        report = classification_report(y_test, y_pred[:20])
         st.write(report) 
         st.header("Confusion Matrix")
         cm = confusion_matrix(akt , lable_asli)
