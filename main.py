@@ -4,7 +4,7 @@ from streamlit_option_menu import option_menu
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split , KFold
-from sklearn.metrics import mean_absolute_error , accuracy_score ,confusion_matrix , ConfusionMatrixDisplay 
+from sklearn.metrics import mean_absolute_error , accuracy_score ,confusion_matrix , ConfusionMatrixDisplay ,classification_report
 from sklearn.preprocessing import LabelEncoder , MinMaxScaler
 import numpy as np
 import matplotlib.pyplot as plt
@@ -109,6 +109,9 @@ if option == "Detail Perhitungan":
             scores.append(score)
         rata_rata = np.sum(scores) / len(scores)
         st.write("Rata Rata Cross-Validation Score (K-fold):", rata_rata)
+        st.header('klarifikasi report') 
+        report = classification_report(y_test, y_pred)
+        st.write(report) 
         st.header("Confusion Matrix")
         cm = confusion_matrix(akt , lable_asli)
         cmd = ConfusionMatrixDisplay(confusion_matrix=cm , display_labels=['Normal' , 'Parah' , 'Ringan' , 'Sangat Parah' , 'Sedang'])
