@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error , accuracy_score ,confusion_matr
 from sklearn.preprocessing import LabelEncoder , MinMaxScaler
 import numpy as np
 import matplotlib.pyplot as plt
-
+from sklearn.feature_selection import SelectKBest , chi2
 
 df = pd.read_csv('stress.csv')
 dfx = df.drop('Unnamed: 0' ,axis=1)
@@ -89,6 +89,15 @@ if option == "Detail Perhitungan":
         mae = mean_absolute_error(y_test , y_pred)
         acc = accuracy_score(y_test , y_pred)
         st.write(f"MAE {mae} | Accuracy {acc}")
+        dfx = df.drop('Unnamed: 0' ,axis=1)
+        k_best = SelectKBest(chi2, k=len(dfx.columns))
+        X_train_selected = k_best.fit_transform(X , y)
+        feature_scores = k_best.scores_
+        feature_names = dfx.columns
+        st.header("Feature importance")
+        for feature, score in zip(feature_names, feature_scores):
+            st.write(f"Feature: {feature}, Score: {score}")
+        st.header("K Fold")
         # Kfold
         kf = KFold(n_splits=5)
         scores = []
