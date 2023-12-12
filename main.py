@@ -173,7 +173,28 @@ if option == "Tes Tingkat Stres" :
         df = pd.read_csv('stress.csv')
         clasifikasi = KNN(df)
         hasils = clasifikasi.Class_Enggine(datah , k = 50 , auto_k=False)
-        p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
-        pada prodi {inpt2} Tingkat stres anda {hasils} , 
-        Jika anda sudah merasa lelah dengan keadaan Maka dekatkan lah hati kepada Tuhan'''
-        st.write(p)
+        if hasils == "Normal":
+            p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
+            pada prodi {inpt2} Tingkat stres anda {hasils} , 
+            Anda masih sehat sehat saja jadi perbanyak istirahat'''
+            st.write(p)
+        elif hasils == "Ringan":
+            p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
+            pada prodi {inpt2} Tingkat stres anda {hasils} , 
+            Anda harus beristirahat dan dekatkan diri ke pada tuhan'''
+            st.write(p)
+        elif hasils == "Sedang":
+            p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
+            pada prodi {inpt2} Tingkat stres anda {hasils} , 
+            Anda harus segera beristirahat dan dekatkan diri ke pada tuhan'''
+            st.write(p)
+        elif hasils == "Parah":
+            p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
+            pada prodi {inpt2} Tingkat stres anda {hasils} , 
+            Anda harus segera melakukan rehabilitasi / mendengarkan nasehat nasehat baik'''
+            st.write(p)
+        elif hasils == "Sangat Parah":
+            p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
+            pada prodi {inpt2} Tingkat stres anda {hasils} , 
+            Anda harus segera melakukan rehabilitasi / mendengarkan nasehat nasehat baik atau pergi ke piskolog'''
+            st.write(p)
