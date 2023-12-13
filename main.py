@@ -186,7 +186,7 @@ if option == "Tes Tingkat Stres" :
         elif hasils == "Sedang":
             p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
             pada prodi {inpt2} Tingkat stres anda {hasils} , 
-            Anda harus segera beristirahat dan dekatkan diri ke pada tuhan'''
+            Anda harus segera melakukan rehabilitasi / mendengarkan nasehat nasehat baik'''
             st.write(p)
         elif hasils == "Parah":
             p = f'''Dari hasil analysis Program kami user bernama {inpt1} ,
